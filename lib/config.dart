@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 enum Flavor {
   DEVELOPMENT,
@@ -8,5 +6,5 @@ enum Flavor {
 }
 
 class Config {
-  static Flavor appFlavor;
+  static Flavor? appFlavor;
 }

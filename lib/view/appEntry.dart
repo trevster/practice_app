@@ -1,4 +1,5 @@
 import 'package:first_app/config.dart';
+import 'package:first_app/view/task_page/task_view.dart';
 import 'package:flutter/material.dart';
 import 'package:pinch_zoom/pinch_zoom.dart';
 
@@ -70,9 +71,9 @@ class SecondRoute extends StatelessWidget{
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, this.title}) : super(key: key);
 
-  final String title;
+  final String? title;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -83,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final List<Widget> _pageOptions = <Widget> [
     FirstRoute(),
-    Text('Page 2'),
+    TaskView(),
     PinchZoom(
       child: Image.network('http://placekitten.com/200/300'),
     ),
@@ -177,6 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
         currentIndex: _selectedPage,
         onTap: _onNavBarTapped,
+        fixedColor: Colors.lightBlueAccent,
       ),
 
     );
@@ -184,7 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class ImageZoom extends StatefulWidget {
-  const ImageZoom({Key key}) : super(key: key);
+  const ImageZoom({Key? key}) : super(key: key);
 
   @override
   _ImageZoomState createState() => _ImageZoomState();
