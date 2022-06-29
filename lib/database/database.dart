@@ -13,10 +13,15 @@ part 'database.g.dart';
 // be represented by a class called "Todo".
 class Todos extends Table {
   IntColumn get id => integer().autoIncrement()();
+
   TextColumn get title => text().withLength(min: 1)();
+
   TextColumn get content => text().named('body').nullable()();
-  IntColumn get category => integer().nullable()();
+
+  TextColumn get category => text().nullable().customConstraint('NULL REFERENCES categories(name)')();
+
   DateTimeColumn get dueDate => dateTime().nullable()();
+
   BoolColumn get completed => boolean().withDefault(Constant(false))();
 }
 
@@ -25,13 +30,34 @@ class Todos extends Table {
 //strips away the trailing "s" in the table name.
 @DataClassName('Category')
 class Categories extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get description => text()();
+  TextColumn get name => text().withLength(min: 1, max: 10)();
+
+  IntColumn get color => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {name};
+}
+
+class TodoWithCategory {
+  final Todo? todo;
+  final Category? category;
+
+  TodoWithCategory({
+    this.todo,
+    this.category,
+  });
+
+  TodoWithCategory copyWith({
+    Todo? todo,
+    Category? category,
+  }) {
+    return TodoWithCategory(todo: todo ?? this.todo, category: category ?? this.category);
+  }
 }
 
 // this annotation tells drift to prepare a database class that uses both of the
 // tables we just defined. We'll see how to use that database class in a moment.
-@DriftDatabase(tables: [Todos, Categories], daos: [TodoDao])
+@DriftDatabase(tables: [Todos, Categories], daos: [TodoDao, CategoryDao])
 class MyDatabase extends _$MyDatabase {
   // we tell the database where to store the data with this constructor
   MyDatabase() : super(_openConnection());
@@ -40,6 +66,14 @@ class MyDatabase extends _$MyDatabase {
   // Migrations are covered later in the documentation.
   @override
   int get schemaVersion => 1;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        // Runs after all the migrations but BEFORE any queries have a chance to execute
+        beforeOpen: (OpeningDetails op) async {
+          await customStatement('PRAGMA foreign_keys = ON');
+        },
+      );
 }
 
 LazyDatabase _openConnection() {
@@ -53,14 +87,66 @@ LazyDatabase _openConnection() {
   });
 }
 
-@DriftAccessor(tables: [Todos])
-class TodoDao extends DatabaseAccessor<MyDatabase> with _$TodoDaoMixin{
+@DriftAccessor(tables: [Todos, Categories])
+class TodoDao extends DatabaseAccessor<MyDatabase> with _$TodoDaoMixin {
   final MyDatabase db;
+
   TodoDao(this.db) : super(db);
 
-  Stream<List<Todo>> watchAllTasks() => select(todos).watch();
-  Future<List<Todo>> readAllTask() => select(todos).get();
+  Stream<List<TodoWithCategory>> watchAllTasks() {
+    return select(todos)
+        .join([
+          leftOuterJoin(
+            categories,
+            categories.name.equalsExp(todos.category),
+          )
+        ])
+        .watch()
+        .map(
+          (rows) => rows.map((row) {
+            return TodoWithCategory(
+              todo: row.readTable(todos),
+              category: row.readTableOrNull(categories),
+            );
+          }).toList(),
+        );
+  }
+
+  Stream<TodoWithCategory> watchSpecificTask(Todo todo) {
+    return (select(todos).join([
+      leftOuterJoin(
+        categories,
+        categories.name.equalsExp(todos.category),
+      )
+    ])
+          ..where(todos.id.equals(todo.id)))
+        .watchSingle()
+        .map((row) {
+      return TodoWithCategory(
+        todo: row.readTable(todos),
+        category: row.readTableOrNull(categories),
+      );
+    });
+  }
+
   Future insertTask(Insertable<Todo> todo) => into(todos).insert(todo);
+
   Future updateTask(Insertable<Todo> todo) => update(todos).replace(todo);
+
   Future deleteTask(Insertable<Todo> todo) => delete(todos).delete(todo);
+}
+
+@DriftAccessor(tables: [Categories])
+class CategoryDao extends DatabaseAccessor<MyDatabase> with _$CategoryDaoMixin {
+  final MyDatabase db;
+
+  CategoryDao(this.db) : super(db);
+
+  Stream<List<Category>> watchAllTasks() => select(categories).watch();
+
+  Future insertTask(Insertable<Category> category) => into(categories).insert(category);
+
+  Future updateTask(Insertable<Category> category) => update(categories).replace(category);
+
+  Future deleteTask(Insertable<Category> category) => delete(categories).delete(category);
 }

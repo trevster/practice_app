@@ -10,7 +10,7 @@ class CreateTaskDataTaskViewEvent extends TaskViewEvent{
 }
 class ReadTaskDataTaskViewEvent extends TaskViewEvent{}
 class UpdateDataTaskViewEvent extends TaskViewEvent{
-  final Todo todo;
+  final Todo? todo;
   UpdateDataTaskViewEvent(this.todo);
 }
 class DeleteDataTaskViewEvent extends TaskViewEvent{}

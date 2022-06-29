@@ -8,24 +8,24 @@ enum TaskViewStateEnum {
 }
 
 class TaskViewState extends Equatable {
-  final List<Todo> listTodo;
+  final List<TodoWithCategory> listTodoWithCategory;
   final TaskViewStateEnum taskViewStateEnum;
 
   const TaskViewState({
-    this.listTodo = const [],
+    this.listTodoWithCategory = const [],
     this.taskViewStateEnum = TaskViewStateEnum.empty,
   });
 
   TaskViewState copyWith({
-    List<Todo>? listTodo,
+    List<TodoWithCategory>? listTodoWithCategory,
     TaskViewStateEnum? taskViewStateEnum,
   }) {
     return TaskViewState(
-      listTodo: listTodo ?? this.listTodo,
+      listTodoWithCategory: listTodoWithCategory ?? this.listTodoWithCategory,
       taskViewStateEnum: taskViewStateEnum ?? this.taskViewStateEnum,
     );
   }
 
   @override
-  List<Object?> get props => [listTodo];
+  List<Object?> get props => [listTodoWithCategory];
 }

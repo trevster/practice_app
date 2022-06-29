@@ -1,4 +1,5 @@
-import 'package:first_app/view/task_page/task_view_bloc.dart';
+import 'package:first_app/features/task_edit_page/task_edit_view.dart';
+import 'package:first_app/features/task_page/task_view_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -38,20 +39,26 @@ class _TaskViewState extends State<TaskView> {
                 if (state.taskViewStateEnum == TaskViewStateEnum.loaded) {
                   return ListView.builder(
                     physics: BouncingScrollPhysics(),
-                    itemCount: state.listTodo.length,
+                    itemCount: state.listTodoWithCategory.length,
                     itemBuilder: (_, index) {
-                      return CheckboxListTile(
-                        title: Text(state.listTodo[index].title),
-                        subtitle: Text(state.listTodo[index].content ?? 'No Description'),
-                        value: state.listTodo[index].completed,
-                        onChanged: (bool? value) {
-                          _taskViewBloc.add(UpdateDataTaskViewEvent(state.listTodo[index].copyWith(completed: value)));
-                        },
+                      return ListTile(
+                        title: Text(state.listTodoWithCategory[index].todo?.title ?? ''),
+                        subtitle: Text(state.listTodoWithCategory[index].category?.name ?? ''),
+                        trailing: Checkbox(
+                          value: state.listTodoWithCategory[index].todo?.completed,
+                          onChanged: (_) => _taskViewBloc.add(UpdateDataTaskViewEvent(state.listTodoWithCategory[index].todo)),
+                        ),
+                        onTap: () => _taskViewBloc.add(UpdateDataTaskViewEvent(state.listTodoWithCategory[index].todo)),
+                        onLongPress: () => Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => TaskEditView(todoWithCategory: state.listTodoWithCategory[index]))),
                       );
                     },
                   );
                 }
-                return Center(child: Container(child: Text('No Task'),));
+                return Center(
+                    child: Container(
+                  child: Text('No Task'),
+                ));
               },
               listener: (_, __) {},
             ),

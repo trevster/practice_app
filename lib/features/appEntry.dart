@@ -1,7 +1,11 @@
 import 'package:first_app/config.dart';
-import 'package:first_app/view/task_page/task_view.dart';
+import 'package:first_app/database/database.dart';
+import 'package:first_app/features/task_page/task_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pinch_zoom/pinch_zoom.dart';
+
+final MyDatabase database = MyDatabase();
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -10,34 +14,31 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Test',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        textTheme: TextTheme(
-          button: TextStyle(color: Colors.grey[400]),
-          headline5: TextStyle(color: Colors.grey[400]),
-          headline6: TextStyle(color: Colors.grey[400]),
-          subtitle2: TextStyle(color: Colors.grey[400]),
-          subtitle1: TextStyle(color: Colors.grey[400]),
-          caption: TextStyle(color: Colors.grey[400]),
-          bodyText1: TextStyle(color: Colors.grey[400]),
-          bodyText2: TextStyle(color: Colors.grey[400]),
-        )
-      ),
+          primarySwatch: Colors.blue,
+          textTheme: TextTheme(
+            button: TextStyle(color: Colors.grey[400]),
+            headline5: TextStyle(color: Colors.grey[400]),
+            headline6: TextStyle(color: Colors.grey[400]),
+            subtitle2: TextStyle(color: Colors.grey[400]),
+            subtitle1: TextStyle(color: Colors.grey[400]),
+            caption: TextStyle(color: Colors.grey[400]),
+            bodyText1: TextStyle(color: Colors.grey[400]),
+            bodyText2: TextStyle(color: Colors.grey[400]),
+          )),
       home: MyHomePage(),
     );
   }
 }
 
-class FirstRoute extends StatelessWidget{
-
+class FirstRoute extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return new Scaffold(
-
       body: Center(
         child: TextButton(
           child: Text('Go to Page 2'),
-          onPressed: (){
+          onPressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => SecondRoute()),
@@ -45,12 +46,11 @@ class FirstRoute extends StatelessWidget{
           },
         ),
       ),
-
     );
   }
 }
 
-class SecondRoute extends StatelessWidget{
+class SecondRoute extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -61,7 +61,7 @@ class SecondRoute extends StatelessWidget{
       body: Center(
         child: TextButton(
           child: Text('Back to Page 1'),
-          onPressed: (){
+          onPressed: () {
             Navigator.pop(context);
           },
         ),
@@ -82,14 +82,14 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedPage = 0;
 
-  final List<Widget> _pageOptions = <Widget> [
+  final List<Widget> _pageOptions = <Widget>[
     FirstRoute(),
     TaskView(),
     PinchZoom(
       child: Image.network('http://placekitten.com/200/300'),
     ),
     AspectRatio(
-      aspectRatio: 200/300,
+      aspectRatio: 200 / 300,
       child: SizedBox(
         height: double.maxFinite,
         width: double.maxFinite,
@@ -102,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
     ImageZoom(),
   ];
 
-  final List<Widget> _titlePage = <Widget> [
+  final List<Widget> _titlePage = <Widget>[
     homeTitle,
     Text('Explore'),
     Text('Pinch Zoom'),
@@ -110,8 +110,8 @@ class _MyHomePageState extends State<MyHomePage> {
     Text('Image Zoom'),
   ];
 
-  static Widget get homeTitle{
-    switch (Config.appFlavor){
+  static Widget get homeTitle {
+    switch (Config.appFlavor) {
       case Flavor.DEVELOPMENT:
         return Text('Development');
       case Flavor.TESTING:
@@ -123,7 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _onNavBarTapped(int index){
+  void _onNavBarTapped(int index) {
     setState(() {
       _selectedPage = index;
     });
@@ -148,39 +148,51 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Material(
         elevation: 100,
         child: Center(
-
           child: _pageOptions.elementAt(_selectedPage),
         ),
       ),
-
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem> [
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             label: 'Home',
-            icon: Icon(Icons.home, color: Colors.grey,),
+            icon: Icon(
+              Icons.home,
+              color: Colors.grey,
+            ),
           ),
           BottomNavigationBarItem(
             label: 'Explore',
-            icon: Icon(Icons.explore, color: Colors.grey,),
+            icon: Icon(
+              Icons.explore,
+              color: Colors.grey,
+            ),
           ),
           BottomNavigationBarItem(
             label: 'PinchZoom',
-            icon: Icon(Icons.pin, color: Colors.grey,),
+            icon: Icon(
+              Icons.pin,
+              color: Colors.grey,
+            ),
           ),
           BottomNavigationBarItem(
             label: 'Interactive Viewer',
-            icon: Icon(Icons.image, color: Colors.grey,),
+            icon: Icon(
+              Icons.image,
+              color: Colors.grey,
+            ),
           ),
           BottomNavigationBarItem(
             label: 'Interactive Viewer',
-            icon: Icon(Icons.ten_k, color: Colors.grey,),
+            icon: Icon(
+              Icons.ten_k,
+              color: Colors.grey,
+            ),
           ),
         ],
         currentIndex: _selectedPage,
         onTap: _onNavBarTapped,
         fixedColor: Colors.lightBlueAccent,
       ),
-
     );
   }
 }
@@ -204,9 +216,21 @@ class _ImageZoomState extends State<ImageZoom> {
             width: double.maxFinite,
             child: Column(
               children: [
-                SizedBox(height: 200, child: Container(color: Colors.blue,)),
-                SizedBox(height: 300, child: Container(color: Colors.grey,)),
-                SizedBox(height: 200,child: Container(color: Colors.green,)),
+                SizedBox(
+                    height: 200,
+                    child: Container(
+                      color: Colors.blue,
+                    )),
+                SizedBox(
+                    height: 300,
+                    child: Container(
+                      color: Colors.grey,
+                    )),
+                SizedBox(
+                    height: 200,
+                    child: Container(
+                      color: Colors.green,
+                    )),
               ],
             ),
           ),
@@ -226,4 +250,3 @@ class _ImageZoomState extends State<ImageZoom> {
     );
   }
 }
-

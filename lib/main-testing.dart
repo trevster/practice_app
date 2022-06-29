@@ -1,6 +1,6 @@
+import 'package:first_app/features/appEntry.dart';
 import 'package:flutter/material.dart';
 
-import 'view/appEntry.dart';
 import 'config.dart';
 
 void main(){
